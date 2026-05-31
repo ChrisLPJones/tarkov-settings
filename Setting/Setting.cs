@@ -13,10 +13,14 @@ namespace tarkov_settings.Setting
 
         public static T Load(string fileName = DEFAULT_FILENAME)
         {
-            T t = new T();
             if (File.Exists(fileName))
-                t = JsonConvert.DeserializeObject<T>(File.ReadAllText(fileName));
-            return t;
+            {
+                // ObjectCreationHandling.Replace ensures collection fields are replaced
+                // rather than merged into their default-initialized values.
+                var settings = new JsonSerializerSettings { ObjectCreationHandling = Newtonsoft.Json.ObjectCreationHandling.Replace };
+                return JsonConvert.DeserializeObject<T>(File.ReadAllText(fileName), settings);
+            }
+            return new T();
         }
     }
 }

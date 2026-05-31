@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net472</TargetFramework>
+    <PlatformTarget>x64</PlatformTarget>
+    <IsPackable>false</IsPackable>
+    <RootNamespace>tarkov_settings.Tests</RootNamespace>
+    <AssemblyName>tarkov-settings.Tests</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="MSTest.TestAdapter" Version="2.2.10" />
+    <PackageReference Include="MSTest.TestFramework" Version="2.2.10" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+  </ItemGroup>
+
+  <!--
+    We link only the pure-logic files from the main project (no WinForms / GPU deps).
+    ColorController.CalculateLUT and NVIDIA.ClampSaturation are pure math, so they
+    are duplicated in TestHelpers.cs rather than compiled from the WinForms project.
+  -->
+  <ItemGroup>
+    <Compile Include="..\Setting\Setting.cs" Link="Setting\Setting.cs" />
+    <Compile Include="..\Setting\Profile.cs" Link="Setting\Profile.cs" />
+    <Compile Include="..\Setting\AppSetting.cs" Link="Setting\AppSetting.cs" />
+  </ItemGroup>
+</Project>

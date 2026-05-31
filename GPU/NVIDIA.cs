@@ -45,14 +45,17 @@ namespace tarkov_settings.GPU
             get => currentSaturation;
             set
             {
-                if (value > this.MaxSaturation)
-                    value = this.MaxSaturation;
-                if (value < this.MinSaturation)
-                    value = this.MinSaturation;
-
+                value = ClampSaturation(value, MinSaturation, MaxSaturation);
                 DisplayApi.SetDVCLevel(displayHandle, value);
                 this.currentSaturation = value;
             }
+        }
+
+        internal static int ClampSaturation(int value, int min, int max)
+        {
+            if (value > max) return max;
+            if (value < min) return min;
+            return value;
         }
 
         public NVIDIA(GPUVendor vendor)

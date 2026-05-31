@@ -29,7 +29,7 @@ namespace tarkov_settings
                     HttpResponseMessage response = await client.GetAsync(checkUrl);
                     response.EnsureSuccessStatusCode();
 
-                    string version = await response.Content.ReadAsStringAsync();
+                    string version = (await response.Content.ReadAsStringAsync()).Trim();
                     this.LatestVersionLabel.Text = version;
                     latest = new Version(version);
                     if(latest > current)
