@@ -30,11 +30,12 @@
         {
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
-            this.layoutTablePanel = new System.Windows.Forms.TableLayoutPanel();
-            this.SideMenu = new System.Windows.Forms.ToolStrip();
-            this.MiscsButton = new System.Windows.Forms.ToolStripButton();
-            this.ColorButton = new System.Windows.Forms.ToolStripButton();
+            this.profilePanel = new System.Windows.Forms.Panel();
+            this.MiscsButton = new System.Windows.Forms.Button();
+            this.ColorButton = new System.Windows.Forms.Button();
             this.ColorPanel = new System.Windows.Forms.Panel();
+            this.alwaysOnCheckBox = new System.Windows.Forms.CheckBox();
+            this.darkModeCheckBox = new System.Windows.Forms.CheckBox();
             this.minimizeStartCheckBox = new System.Windows.Forms.CheckBox();
             this.DisplayCombo = new System.Windows.Forms.ComboBox();
             this.DVLGroupBox = new System.Windows.Forms.GroupBox();
@@ -65,8 +66,7 @@
             this.contrastToolTip = new System.Windows.Forms.ToolTip(this.components);
             this.gammaToolTip = new System.Windows.Forms.ToolTip(this.components);
             this.dvlToolTip = new System.Windows.Forms.ToolTip(this.components);
-            this.layoutTablePanel.SuspendLayout();
-            this.SideMenu.SuspendLayout();
+            this.profilePanel.SuspendLayout();
             this.ColorPanel.SuspendLayout();
             this.DVLGroupBox.SuspendLayout();
             this.DVLPanel.SuspendLayout();
@@ -81,95 +81,89 @@
             ((System.ComponentModel.ISupportInitialize)(this.GammaBar)).BeginInit();
             this.trayMenuStrip.SuspendLayout();
             this.SuspendLayout();
-            // 
-            // layoutTablePanel
-            // 
-            this.layoutTablePanel.ColumnCount = 2;
-            this.layoutTablePanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 10.37594F));
-            this.layoutTablePanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 89.62406F));
-            this.layoutTablePanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 20F));
-            this.layoutTablePanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 20F));
-            this.layoutTablePanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 20F));
-            this.layoutTablePanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 20F));
-            this.layoutTablePanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 20F));
-            this.layoutTablePanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 20F));
-            this.layoutTablePanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 20F));
-            this.layoutTablePanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 20F));
-            this.layoutTablePanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 20F));
-            this.layoutTablePanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 20F));
-            this.layoutTablePanel.Controls.Add(this.SideMenu, 0, 0);
-            this.layoutTablePanel.Controls.Add(this.ColorPanel, 1, 0);
-            this.layoutTablePanel.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.layoutTablePanel.Font = new System.Drawing.Font("Consolas", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.layoutTablePanel.ForeColor = System.Drawing.SystemColors.ButtonHighlight;
-            this.layoutTablePanel.Location = new System.Drawing.Point(0, 0);
-            this.layoutTablePanel.Name = "layoutTablePanel";
-            this.layoutTablePanel.RowCount = 1;
-            this.layoutTablePanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 18.4669F));
-            this.layoutTablePanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 81.5331F));
-            this.layoutTablePanel.Size = new System.Drawing.Size(734, 372);
-            this.layoutTablePanel.TabIndex = 0;
-            // 
-            // SideMenu
-            // 
-            this.SideMenu.AutoSize = false;
-            this.SideMenu.BackColor = System.Drawing.Color.AliceBlue;
-            this.SideMenu.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.SideMenu.GripStyle = System.Windows.Forms.ToolStripGripStyle.Hidden;
-            this.SideMenu.ImageScalingSize = new System.Drawing.Size(48, 48);
-            this.SideMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.MiscsButton,
-            this.ColorButton});
-            this.SideMenu.LayoutStyle = System.Windows.Forms.ToolStripLayoutStyle.VerticalStackWithOverflow;
-            this.SideMenu.Location = new System.Drawing.Point(0, 5);
-            this.SideMenu.Margin = new System.Windows.Forms.Padding(0, 5, 0, 5);
-            this.SideMenu.Name = "SideMenu";
-            this.SideMenu.Size = new System.Drawing.Size(76, 362);
-            this.SideMenu.TabIndex = 1;
-            this.SideMenu.Text = "colorSettings";
-            // 
-            // MiscsButton
-            // 
-            this.MiscsButton.Enabled = false;
+            //
+            // profilePanel
+            //
+            this.profilePanel.Controls.Add(this.MiscsButton);
+            this.profilePanel.Controls.Add(this.ColorButton);
+            this.profilePanel.Dock = System.Windows.Forms.DockStyle.Top;
+            this.profilePanel.Name = "profilePanel";
+            this.profilePanel.Size = new System.Drawing.Size(734, 36);
+            this.profilePanel.TabIndex = 20;
+            //
+            // MiscsButton  (Profile 1)
+            //
+            this.MiscsButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.MiscsButton.Font = new System.Drawing.Font("Consolas", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.MiscsButton.ForeColor = System.Drawing.SystemColors.ActiveCaptionText;
-            this.MiscsButton.Image = global::tarkov_settings.Properties.Resources.nikita;
-            this.MiscsButton.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.MiscsButton.Location = new System.Drawing.Point(0, 0);
             this.MiscsButton.Name = "MiscsButton";
-            this.MiscsButton.Size = new System.Drawing.Size(73, 74);
-            this.MiscsButton.Text = "Miscs";
-            this.MiscsButton.TextDirection = System.Windows.Forms.ToolStripTextDirection.Horizontal;
-            this.MiscsButton.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageAboveText;
-            // 
-            // ColorButton
-            // 
+            this.MiscsButton.Size = new System.Drawing.Size(367, 36);
+            this.MiscsButton.TabIndex = 0;
+            this.MiscsButton.Text = "Profile 1";
+            this.MiscsButton.UseVisualStyleBackColor = true;
+            this.MiscsButton.Click += new System.EventHandler(this.Profile1Button_Click);
+            this.MiscsButton.MouseDown += new System.Windows.Forms.MouseEventHandler(this.ProfileButton_MouseDown);
+            //
+            // ColorButton  (Profile 2)
+            //
+            this.ColorButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.ColorButton.Font = new System.Drawing.Font("Consolas", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.ColorButton.ForeColor = System.Drawing.SystemColors.ActiveCaptionText;
-            this.ColorButton.Image = global::tarkov_settings.Properties.Resources.nikita_rainbow;
-            this.ColorButton.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.ColorButton.Location = new System.Drawing.Point(367, 0);
             this.ColorButton.Name = "ColorButton";
-            this.ColorButton.Size = new System.Drawing.Size(73, 74);
-            this.ColorButton.Text = "Color";
-            this.ColorButton.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageAboveText;
-            // 
+            this.ColorButton.Size = new System.Drawing.Size(367, 36);
+            this.ColorButton.TabIndex = 1;
+            this.ColorButton.Text = "Profile 2";
+            this.ColorButton.UseVisualStyleBackColor = true;
+            this.ColorButton.Click += new System.EventHandler(this.Profile2Button_Click);
+            this.ColorButton.MouseDown += new System.Windows.Forms.MouseEventHandler(this.ProfileButton_MouseDown);
+            //
             // ColorPanel
-            // 
+            //
+            this.ColorPanel.Controls.Add(this.alwaysOnCheckBox);
+            this.ColorPanel.Controls.Add(this.darkModeCheckBox);
             this.ColorPanel.Controls.Add(this.minimizeStartCheckBox);
             this.ColorPanel.Controls.Add(this.DisplayCombo);
             this.ColorPanel.Controls.Add(this.DVLGroupBox);
             this.ColorPanel.Controls.Add(this.colorGroupBox);
+            this.ColorPanel.Controls.Add(this.profilePanel);
             this.ColorPanel.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.ColorPanel.Location = new System.Drawing.Point(79, 3);
+            this.ColorPanel.Location = new System.Drawing.Point(0, 0);
             this.ColorPanel.Name = "ColorPanel";
-            this.ColorPanel.Size = new System.Drawing.Size(652, 366);
-            this.ColorPanel.TabIndex = 2;
-            // 
+            this.ColorPanel.Size = new System.Drawing.Size(734, 372);
+            this.ColorPanel.TabIndex = 0;
+            //
+            // alwaysOnCheckBox
+            //
+            this.alwaysOnCheckBox.AutoSize = true;
+            this.alwaysOnCheckBox.BackColor = System.Drawing.Color.Transparent;
+            this.alwaysOnCheckBox.ForeColor = System.Drawing.SystemColors.ActiveCaptionText;
+            this.alwaysOnCheckBox.Location = new System.Drawing.Point(3, 336);
+            this.alwaysOnCheckBox.Name = "alwaysOnCheckBox";
+            this.alwaysOnCheckBox.Size = new System.Drawing.Size(120, 26);
+            this.alwaysOnCheckBox.TabIndex = 17;
+            this.alwaysOnCheckBox.Text = "Always On";
+            this.alwaysOnCheckBox.UseVisualStyleBackColor = false;
+            this.alwaysOnCheckBox.CheckedChanged += new System.EventHandler(this.AlwaysOnCheckBox_CheckedChanged);
+            //
+            // darkModeCheckBox
+            //
+            this.darkModeCheckBox.AutoSize = true;
+            this.darkModeCheckBox.BackColor = System.Drawing.Color.Transparent;
+            this.darkModeCheckBox.ForeColor = System.Drawing.SystemColors.ActiveCaptionText;
+            this.darkModeCheckBox.Location = new System.Drawing.Point(135, 336);
+            this.darkModeCheckBox.Name = "darkModeCheckBox";
+            this.darkModeCheckBox.Size = new System.Drawing.Size(120, 26);
+            this.darkModeCheckBox.TabIndex = 18;
+            this.darkModeCheckBox.Text = "Dark Mode";
+            this.darkModeCheckBox.UseVisualStyleBackColor = false;
+            this.darkModeCheckBox.CheckedChanged += new System.EventHandler(this.DarkModeCheckBox_CheckedChanged);
+            //
             // minimizeStartCheckBox
-            // 
+            //
             this.minimizeStartCheckBox.AutoSize = true;
             this.minimizeStartCheckBox.BackColor = System.Drawing.Color.Transparent;
             this.minimizeStartCheckBox.ForeColor = System.Drawing.SystemColors.ActiveCaptionText;
-            this.minimizeStartCheckBox.Location = new System.Drawing.Point(289, 332);
+            this.minimizeStartCheckBox.Location = new System.Drawing.Point(289, 336);
             this.minimizeStartCheckBox.Name = "minimizeStartCheckBox";
             this.minimizeStartCheckBox.Size = new System.Drawing.Size(286, 26);
             this.minimizeStartCheckBox.TabIndex = 16;
@@ -182,7 +176,7 @@
             this.DisplayCombo.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.DisplayCombo.FlatStyle = System.Windows.Forms.FlatStyle.System;
             this.DisplayCombo.FormattingEnabled = true;
-            this.DisplayCombo.Location = new System.Drawing.Point(502, 328);
+            this.DisplayCombo.Location = new System.Drawing.Point(558, 332);
             this.DisplayCombo.Name = "DisplayCombo";
             this.DisplayCombo.Size = new System.Drawing.Size(139, 30);
             this.DisplayCombo.TabIndex = 15;
@@ -191,9 +185,9 @@
             // DVLGroupBox
             // 
             this.DVLGroupBox.Controls.Add(this.DVLPanel);
-            this.DVLGroupBox.Location = new System.Drawing.Point(499, 9);
+            this.DVLGroupBox.Location = new System.Drawing.Point(573, 40);
             this.DVLGroupBox.Name = "DVLGroupBox";
-            this.DVLGroupBox.Size = new System.Drawing.Size(145, 307);
+            this.DVLGroupBox.Size = new System.Drawing.Size(155, 288);
             this.DVLGroupBox.TabIndex = 13;
             this.DVLGroupBox.TabStop = false;
             this.DVLGroupBox.Text = "DVL";
@@ -226,12 +220,13 @@
             // DVLBar
             // 
             this.DVLBar.Location = new System.Drawing.Point(56, 42);
-            this.DVLBar.Maximum = 63;
+            this.DVLBar.Maximum = 100;
             this.DVLBar.Name = "DVLBar";
             this.DVLBar.Orientation = System.Windows.Forms.Orientation.Vertical;
             this.DVLBar.Size = new System.Drawing.Size(69, 184);
             this.DVLBar.TabIndex = 9;
             this.DVLBar.TickStyle = System.Windows.Forms.TickStyle.None;
+            this.DVLBar.Value = 50;
             this.DVLBar.ValueChanged += new System.EventHandler(this.TrackBar_ValueChanged);
             // 
             // DVLText
@@ -241,15 +236,15 @@
             this.DVLText.ReadOnly = true;
             this.DVLText.Size = new System.Drawing.Size(41, 29);
             this.DVLText.TabIndex = 11;
-            this.DVLText.Text = "0";
+            this.DVLText.Text = "50";
             this.DVLText.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
             // colorGroupBox
             // 
             this.colorGroupBox.Controls.Add(this.colorTablePanel);
-            this.colorGroupBox.Location = new System.Drawing.Point(3, 9);
+            this.colorGroupBox.Location = new System.Drawing.Point(3, 40);
             this.colorGroupBox.Name = "colorGroupBox";
-            this.colorGroupBox.Size = new System.Drawing.Size(490, 307);
+            this.colorGroupBox.Size = new System.Drawing.Size(565, 288);
             this.colorGroupBox.TabIndex = 12;
             this.colorGroupBox.TabStop = false;
             this.colorGroupBox.Text = "Color";
@@ -286,7 +281,7 @@
             // 
             this.BrightnessBar.Location = new System.Drawing.Point(13, 27);
             this.BrightnessBar.Maximum = 100;
-            this.BrightnessBar.Minimum = -100;
+            this.BrightnessBar.Minimum = 0;
             this.BrightnessBar.Name = "BrightnessBar";
             this.BrightnessBar.Size = new System.Drawing.Size(397, 69);
             this.BrightnessBar.TabIndex = 18;
@@ -332,7 +327,7 @@
             // 
             this.ContrastBar.Location = new System.Drawing.Point(13, 39);
             this.ContrastBar.Maximum = 100;
-            this.ContrastBar.Minimum = -100;
+            this.ContrastBar.Minimum = 0;
             this.ContrastBar.Name = "ContrastBar";
             this.ContrastBar.Size = new System.Drawing.Size(397, 69);
             this.ContrastBar.TabIndex = 19;
@@ -483,7 +478,7 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
             this.BackColor = System.Drawing.Color.White;
             this.ClientSize = new System.Drawing.Size(734, 372);
-            this.Controls.Add(this.layoutTablePanel);
+            this.Controls.Add(this.ColorPanel);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MaximizeBox = false;
@@ -491,9 +486,7 @@
             this.Text = "Tarkov Settings";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainForm_FormClosing);
             this.Load += new System.EventHandler(this.MainForm_Load);
-            this.layoutTablePanel.ResumeLayout(false);
-            this.SideMenu.ResumeLayout(false);
-            this.SideMenu.PerformLayout();
+            this.profilePanel.ResumeLayout(false);
             this.ColorPanel.ResumeLayout(false);
             this.ColorPanel.PerformLayout();
             this.DVLGroupBox.ResumeLayout(false);
@@ -517,10 +510,9 @@
         }
 
         #endregion
-        private System.Windows.Forms.TableLayoutPanel layoutTablePanel;
-        private System.Windows.Forms.ToolStrip SideMenu;
-        private System.Windows.Forms.ToolStripButton MiscsButton;
-        private System.Windows.Forms.ToolStripButton ColorButton;
+        private System.Windows.Forms.Panel profilePanel;
+        private System.Windows.Forms.Button MiscsButton;
+        private System.Windows.Forms.Button ColorButton;
         private System.Windows.Forms.Panel ColorPanel;
         
         
@@ -550,6 +542,8 @@
         private System.Windows.Forms.ToolStripMenuItem enableToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem showToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem exitToolStripMenuItem;
+        private System.Windows.Forms.CheckBox alwaysOnCheckBox;
+        private System.Windows.Forms.CheckBox darkModeCheckBox;
         private System.Windows.Forms.CheckBox minimizeStartCheckBox;
         private System.Windows.Forms.ToolTip dvlToolTip;
         private System.Windows.Forms.ToolTip brightnessToolTip;

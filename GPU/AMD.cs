@@ -40,9 +40,6 @@ namespace tarkov_settings.GPU
             throw new NotImplementedException();
         }
 
-        public void Close()
-        {
-            throw new NotImplementedException();
-        }
+        public void Close() { }
     }
 }

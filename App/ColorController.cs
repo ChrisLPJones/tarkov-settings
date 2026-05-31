@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
@@ -11,27 +11,25 @@ namespace tarkov_settings
     {
         IGPU gpu = GPUDevice.Instance;
 
-        // Gamma Ramps
         private RAMP currentRamps;
         private RAMP originalRamps;
 
-        /**
-         * _canceller : Token Source to abort Async-Task (Gamma Value Change)
-         * WHY : *I don't know why* set gamma ramp keeps revert soon after modified
-         */
-        private CancellationTokenSource _canceller;
+        // True  → loop re-applies originalRamps every 250 ms (reset/idle state)
+        // False → loop re-applies currentRamps  every 250 ms (active/custom state)
+        // Running the loop in BOTH states means Windows can never permanently revert either ramp.
+        private volatile bool _resetMode = true;
+        private CancellationTokenSource _loopCanceller;
 
-        #region Singleton Pattern implement
+        // Preview thread — applies slider values off the UI thread so dragging stays smooth.
+        private volatile float _previewB = 0.5f, _previewC = 0.5f, _previewG = 1.0f;
+        private volatile int _previewDvl = 50;
+        private readonly AutoResetEvent _previewSignal = new AutoResetEvent(false);
+
+        #region Singleton Pattern
         private static readonly Lazy<ColorController> instance =
             new Lazy<ColorController>(() => new ColorController());
 
-        public static ColorController Instance
-        {
-            get
-            {
-                return instance.Value;
-            }
-        }
+        public static ColorController Instance => instance.Value;
         #endregion
 
         #region Win32 API Calls
@@ -42,28 +40,42 @@ namespace tarkov_settings
         private static extern bool SetDeviceGammaRamp(IntPtr hDc, ref RAMP lpRamp);
         #endregion
 
+        // DVL is expressed as a percentage (0–100) matching the Nvidia Control Panel scale.
         public int DVL
         {
-            get => gpu.Saturation;
+            get
+            {
+                try
+                {
+                    int min = gpu.MinSaturation;
+                    int max = gpu.MaxSaturation;
+                    if (max <= min) return 50;
+                    return (int)Math.Round((gpu.Saturation - min) / (double)(max - min) * 100);
+                }
+                catch (NotImplementedException) { return 50; }
+            }
             set
             {
-                gpu.Saturation = value;
+                try
+                {
+                    int min = gpu.MinSaturation;
+                    int max = gpu.MaxSaturation;
+                    gpu.Saturation = min + (int)Math.Round(value / 100.0 * (max - min));
+                }
+                catch (NotImplementedException) { }
             }
         }
 
-        private ColorController()
-        {
-
-        }
+        private ColorController() { }
 
         public void Init()
         {
-            // Backup Gamma Ramp
+            // Capture the original gamma ramp so we can restore it later.
             var hdc = IntPtr.Zero;
             try
             {
                 hdc = Display.CreateDC(null, Display.Primary, null, IntPtr.Zero);
-                currentRamps = new RAMP();
+                currentRamps  = new RAMP();
                 originalRamps = new RAMP();
                 GetDeviceGammaRamp(hdc, ref originalRamps);
             }
@@ -72,86 +84,105 @@ namespace tarkov_settings
                 if (!IntPtr.Zero.Equals(hdc))
                     Display.DeleteDC(hdc);
             }
-        }
 
-        public async void ChangeColorRamp(double brightness = 0.5, double contrast = 0.5, double gamma = 1.0, bool reset = true)
-        {
-            var hdc = IntPtr.Zero;
-            try
+            // Persistent gamma loop.
+            // Runs regardless of mode so Windows can never permanently revert the ramp.
+            _loopCanceller = new CancellationTokenSource();
+            var token = _loopCanceller.Token;
+            new Thread(() =>
             {
-                hdc = Display.CreateDC(null, Display.Primary, null, IntPtr.Zero);
-
+                var loopHdc = IntPtr.Zero;
                 try
                 {
-                    if (_canceller != null)
+                    loopHdc = Display.CreateDC(null, Display.Primary, null, IntPtr.Zero);
+                    while (!token.IsCancellationRequested)
                     {
-                        _canceller.Cancel();
-                        _canceller.Dispose();
+                        if (_resetMode)
+                            SetDeviceGammaRamp(loopHdc, ref originalRamps);
+                        else
+                            SetDeviceGammaRamp(loopHdc, ref currentRamps);
+                        Thread.Sleep(50);
                     }
                 }
-                catch (ObjectDisposedException) { }
-
-                if (reset)
-                {                    
-                   SetDeviceGammaRamp(hdc, ref originalRamps);
-                }
-                else
+                finally
                 {
-                    ushort[] iArrayValue = CalculateLUT(brightness, contrast, gamma);
-                    currentRamps.Red = currentRamps.Blue = currentRamps.Green = iArrayValue;
+                    if (!IntPtr.Zero.Equals(loopHdc))
+                        Display.DeleteDC(loopHdc);
+                }
+            }) { IsBackground = true }.Start();
 
-                    _canceller = new CancellationTokenSource();
-                    CancellationToken token;
-                    try
-                    {
-                        token = _canceller.Token;
-                    }
-                    catch (ObjectDisposedException) { }
+            new Thread(PreviewLoop) { IsBackground = true }.Start();
+        }
 
-                    await Task.Run(() =>
-                    {
-                        try
-                        {
-                            do
-                            {
-                                SetDeviceGammaRamp(hdc, ref currentRamps);
-                                Thread.Sleep(250);
-                                if (token.IsCancellationRequested)
-                                    break;
-                            } while (true);
-                        }
-                        catch (ObjectDisposedException) { }
-                    });
+        private void PreviewLoop()
+        {
+            while (_previewSignal.WaitOne())
+            {
+                var hdc = IntPtr.Zero;
+                try
+                {
+                    hdc = Display.CreateDC(null, Display.Primary, null, IntPtr.Zero);
+                    var lut = CalculateLUT(_previewB, _previewC, _previewG);
+                    currentRamps.Red = currentRamps.Blue = currentRamps.Green = lut;
+                    SetDeviceGammaRamp(hdc, ref currentRamps);
+                }
+                finally
+                {
+                    if (!IntPtr.Zero.Equals(hdc))
+                        Display.DeleteDC(hdc);
+                }
+                try { DVL = _previewDvl; } catch (NotImplementedException) { }
+            }
+        }
+
+        internal void SignalPreview(double b, double c, double g, int dvl)
+        {
+            _previewB = (float)b; _previewC = (float)c; _previewG = (float)g; _previewDvl = dvl;
+            _previewSignal.Set();
+        }
+
+        public Task ChangeColorRamp(double brightness = 0.5, double contrast = 0.5, double gamma = 1.0, bool reset = true)
+        {
+            if (reset)
+            {
+                _resetMode = true;
+                // Apply immediately so there is no 250 ms gap before the loop picks it up.
+                var hdc = IntPtr.Zero;
+                try
+                {
+                    hdc = Display.CreateDC(null, Display.Primary, null, IntPtr.Zero);
+                    SetDeviceGammaRamp(hdc, ref originalRamps);
+                }
+                finally
+                {
+                    if (!IntPtr.Zero.Equals(hdc)) Display.DeleteDC(hdc);
                 }
             }
-            finally
+            else
             {
-                if (!IntPtr.Zero.Equals(hdc))
-                    Display.DeleteDC(hdc);
+                ushort[] lut = CalculateLUT(brightness, contrast, gamma);
+                currentRamps.Red = currentRamps.Blue = currentRamps.Green = lut;
+                _resetMode = false;
             }
+            return Task.CompletedTask;
         }
 
         /*
          * Code from
          * https://github.com/falahati/NvAPIWrapper/issues/20#issuecomment-634551206
          */
-        private static ushort[] CalculateLUT(double brightness = 0.5, double contrast = 0.5, double gamma = 2.8)
+        internal static ushort[] CalculateLUT(double brightness = 0.5, double contrast = 0.5, double gamma = 2.8)
         {
             const int dataPoints = 256;
 
-            // Limit gamma in range [0.4-2.8]
-            gamma = Math.Min(Math.Max(gamma, 0.4), 2.8);
-            // Normalize contrast in range [-1,1]
-            contrast = (Math.Min(Math.Max(contrast, 0), 1) - 0.5) * 2;
-            // Normalize brightness in range [-1,1]
+            gamma      = Math.Min(Math.Max(gamma,      0.4), 2.8);
+            contrast   = (Math.Min(Math.Max(contrast,  0), 1) - 0.5) * 2;
             brightness = (Math.Min(Math.Max(brightness, 0), 1) - 0.5) * 2;
-            // Calculate curve offset resulted from contrast
+
             var offset = contrast > 0 ? contrast * -25.4 : contrast * -32;
-            // Calculate the total range of curve
-            var range = (dataPoints - 1) + offset * 2;
-            // Add brightness to the curve offset
-            offset += brightness * (range / 5);
-            // Fill the gamma curve
+            var range  = (dataPoints - 1) + offset * 2;
+            offset    += brightness * (range / 5);
+
             var result = new ushort[dataPoints];
             for (var i = 0; i < result.Length; i++)
             {
@@ -169,24 +200,15 @@ namespace tarkov_settings
             {
                 gpu.ResetSaturation();
                 Console.WriteLine("[DVL] Reset to : {0}", gpu.InitSaturation);
-            }catch (NotImplementedException){ }
+            }
+            catch (NotImplementedException) { }
         }
 
         internal void Close()
         {
+            _loopCanceller?.Cancel();
+            _loopCanceller?.Dispose();
             ResetDVL();
-            ChangeColorRamp(reset: true);
-
-            try
-            {
-                if (_canceller != null)
-                {
-                    _canceller.Cancel();
-                    _canceller.Dispose();
-                }
-            }
-            catch (ObjectDisposedException) { }
         }
-
     }
 }

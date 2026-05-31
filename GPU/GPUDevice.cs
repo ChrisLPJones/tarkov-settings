@@ -22,7 +22,7 @@ namespace tarkov_settings.GPU
                     {
                         var deviceName = obj["Name"].ToString();
 
-                        if (deviceName.Contains("NVIDIA") || deviceName.Contains("Geforce"))
+                        if (deviceName.Contains("NVIDIA") || deviceName.Contains("GeForce"))
                         {
                             vendor = GPUVendor.NVIDIA;
                         }
